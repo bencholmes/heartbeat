@@ -8,8 +8,10 @@ clear;
 %% Simulation settings
 fs = 44100;
 
+%%% MAIN PARAMETERS HERE %%%%%%%%%%%%%%%%%%%%%%
 num_beats = 1;   % number of heartbeats
 tempo = 60;      % bpm
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pulse_dur = min(0.15,9/tempo);  % duration of the pulse
 total_dur = (60/tempo);         % duration including pause between beats.
