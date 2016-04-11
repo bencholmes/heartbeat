@@ -9,8 +9,8 @@ clear;
 fs = 44100;
 
 %%% MAIN PARAMETERS HERE %%%%%%%%%%%%%%%%%%%%%%
-num_beats = 1;   % number of heartbeats
-tempo = 60;      % bpm
+num_beats = 10;   % number of heartbeats
+tempo = 100;      % bpm
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pulse_dur = min(0.15,9/tempo);  % duration of the pulse
@@ -103,14 +103,15 @@ end
 %% Add resonant "abdomen"
 
 % Butterworth 3rd order bandpass
-[b_but, a_but] = butter(3,[40 280+(2*tempo)]/fs,'bandpass');
+[b_but, a_but] = butter(3,[20 140+tempo]/(0.5*fs),'bandpass');
+
 filtered_pulse = filter(b_but,a_but,pulse);
 
 % Peaking filter
-[b_peak, a_peak] = iirpeak(110/(fs/2),120/(fs/2));
+[b_peak, a_peak] = iirpeak(110/(fs/2),120/(0.5*fs));
 filtered_pulse = filter(b_peak, a_peak, filtered_pulse);
 
-%% Plot
+%% Plot and Listen
 fig=figure(1);
 clf;
 plot(t, filtered_pulse,t,pulse);
