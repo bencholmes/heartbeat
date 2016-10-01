@@ -8,6 +8,8 @@ Image of a model heart is under public domain, CC0 license.
 
 ## Examples
 
+[At Freesound.org](http://freesound.org/people/loudernoises/packs/18767/)
+
 [Heartbeat at 60bpm](/media/heartbeat-60bpm.wav)
 
 [Heartbeat at 140bpm](/media/heartbeat-60bpm.wav)
