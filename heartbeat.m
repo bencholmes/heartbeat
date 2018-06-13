@@ -4,7 +4,7 @@
 % Initial Date:     2016/01/16
 % Latest Date:      2018/06/13
 % Version:          v2.0.0
-% License:          MIT
+% License:          CC0
 
 clear;
 

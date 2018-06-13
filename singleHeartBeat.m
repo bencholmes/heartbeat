@@ -2,6 +2,12 @@ function [heartbeat, unfilteredHeartbeat] = singleHeartBeat(fs, beatDur, tempo)
 % SINGLEHEARTBEAT A function to provide a sonically pleasing heartbeat
 % sound.
 
+% Author:           Ben Holmes
+% Initial Date:     2016/01/16
+% Latest Date:      2018/06/13
+% Version:          v2.0.0
+% License:          CC0
+
 pulseDur   = min(0.15,0.15*beatDur);
 beatNs      = floor(beatDur*fs);
 pulseNs     = floor(pulseDur*fs);

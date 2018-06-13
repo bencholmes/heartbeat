@@ -65,4 +65,4 @@ The lengths are given as a factor of the total length `pulseNs`. The amplitude i
 
 ## License
 
-MIT © Ben Holmes
+Creative Commons Zero, do as you will!
