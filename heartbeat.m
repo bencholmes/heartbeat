@@ -1,127 +1,64 @@
-%%% HEARTBEAT a script to generate a heartbeat sound effect.
-% Author:  Ben Holmes
-% Date:    2016/01/09
-% License: MIT
+%%% HEARTBEAT A MATLAB script to simulate the sound of a heartbeat.
 
+% Author:           Ben Holmes
+% Initial Date:     2016/01/16
+% Latest Date:      2018/06/13
+% Version:          v2.0.0
+% License:          MIT
 
 clear;
+
 %% Simulation settings
-fs = 44100;
+fs = 44100;         % Sample rate
 
-%%% MAIN PARAMETERS HERE %%%%%%%%%%%%%%%%%%%%%%
-num_beats = 10;   % number of heartbeats
-tempo = 100;      % bpm
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+numBeats = 10;      % number of heartbeats to simulate
+tempoBpm = 100;     % bpm
 
-pulse_dur = min(0.15,9/tempo);  % duration of the pulse
-total_dur = (60/tempo);         % duration including pause between beats.
+%% Durations and number of samples
 
-pulse_Ns = floor(pulse_dur*fs);
-total_Ns = floor(num_beats*total_dur*fs); % sum of number of samples.
-t = linspace(0,total_dur,total_Ns);
-f = linspace(0,fs,total_Ns);
+% Calculate the duration of one beat and all the beats.
+beatDur    = (60/tempoBpm);
+totalDur   = beatDur*numBeats;
 
-% Seed the rng
-rng('shuffle');
+% Number of samples for respective durations
+beatNs     = floor(beatDur*fs);
+totalNs    = floor(totalDur*fs);
 
-%% Heartbeat sections
-% The heartbeat is created from hann windows constructed vaguely into the
-% shape of a heartbeat copied from an EKG.
+% Vectors for plotting against
+timeVec = (0:totalNs-1)./fs;
+frequencyVec = (0:totalNs-1).*(fs/totalNs);
 
-pulse = [];
-for n = 1:num_beats*2
-    % EKG Sections
-    % P
-    p_length = floor((0.75 + rand()/2)*pulse_Ns/9);
-    p_amp = (0.75 + rand()/2)*0.1;
-    P = p_amp*hann(p_length).';
+%% Simulate all heartbeats
 
-    % PR segment
-    pr_length = floor((0.75 + rand()/2)*pulse_Ns/8);
-    PR = zeros(1,pr_length);
+hbConcatenated = ones(1,totalNs);
+hbConcatenatedUnfiltered = ones(1,totalNs);
 
-    % Q
-    q_length = floor((0.75 + rand()/2)*pulse_Ns/24);
-    q_amp = (0.75 + rand()/2)*0.1;
-    Q = -q_amp*hann(q_length).';
-
-    % R
-    r_length = floor((0.75 + rand()/2)*pulse_Ns/6);
-    r_amp = (0.75 + rand()/2)*1;
-    R = r_amp*hann(r_length).';
-
-    % S
-    s_length = floor((0.75 + rand()/2)*pulse_Ns/24);
-    s_amp = (0.75 + rand()/2)*0.3;
-    S = -s_amp*hann(s_length).';
-
-    % ST segment
-    st_length = floor((0.75 + rand()/2)*pulse_Ns/9);
-    ST = zeros(1,st_length);
-
-    % T
-    t_length = floor((0.75 + rand()/2)*pulse_Ns/9);
-    t_amp = (0.75 + rand()/2)*0.2;
-    T = t_amp*hann(t_length).';
-
-    % U
-    u_length = floor((0.75 + rand()/2)*pulse_Ns/11);
-    u_amp = (0.75 + rand()/2)*0.1;
-    U = u_amp*hann(u_length).';
-
-    % Find the total number of samples left after adding together all
-    % sections.
-    sum_length = p_length + pr_length + q_length + r_length + s_length +...
-        st_length + t_length + u_length;
-
-    % Remaining number of samples.
-    rem_ns = pulse_Ns - sum_length;
-
-    % Silence for the remaining number of samples.
-    rem = zeros(1,rem_ns);
-
-    %% Stitch together
-    single_pulse = [ P PR  Q R S ST T U rem ];
-
-    % A condition to switch between two different lengths between pulses,
-    % and apply a gain difference.
-    if mod(n,2)
-        % 1/4 of the length
-        inter_pulse = zeros(1, ceil((((total_dur)*fs) - 2*pulse_Ns)/4) );
-        gain = 0.8;
-    else
-        % 3/4 of the length
-        inter_pulse = zeros(1, floor(3*(((total_dur)*fs) - 2*pulse_Ns)/4) );
-        gain = 1;
-    end
-
-    % Stick the pulses together (admittedly in an ugly method).
-    pulse = [pulse gain.*[single_pulse inter_pulse]];
-
+for nn=1:numBeats
+    % Get heartbeats
+    [tempFilteredHb, tempUnfilteredHb] = singleHeartBeat(fs, beatDur, tempoBpm);
+    
+    % Concatenate them
+    hbConcatenated((nn-1)*beatNs+1:nn*beatNs) = tempFilteredHb;
+    hbConcatenatedUnfiltered((nn-1)*beatNs+1:nn*beatNs) = tempUnfilteredHb;
 end
 
-%% Add resonant "abdomen"
-
-% Butterworth 3rd order bandpass
-[b_but, a_but] = butter(3,[20 140+tempo]/(0.5*fs),'bandpass');
-
-filtered_pulse = filter(b_but,a_but,pulse);
-
-% Peaking filter
-[b_peak, a_peak] = iirpeak(110/(fs/2),120/(0.5*fs));
-filtered_pulse = filter(b_peak, a_peak, filtered_pulse);
-
 %% Plot and Listen
-% fig=figure(1);
-% clf;
-% plot(t, filtered_pulse,t,pulse);
-% xlabel('Time (s)'); ylabel('Amplitude');
-% legend('Filtered Pulse','Unfiltered Pulse'); title('Heartbeat Waveforms');
-% soundsc(filtered_pulse,fs);
+figure(1);
+clf;
+plot(timeVec, hbConcatenated, timeVec, hbConcatenatedUnfiltered);
+xlabel('Time (s)'); ylabel('Amplitude');
+legend('Filtered Pulse','Unfiltered Pulse'); title('Heartbeat Waveforms');
+xlim([0 beatDur*0.6])
+
+set(gcf,'Renderer','painters');
+
+print(gcf,'./media/heartbeat.png','-dpng','-r512')
+
+% soundsc(hbConcatenated, fs);
 
 %% Export
 
 % Normalise
-y = filtered_pulse./max(abs(filtered_pulse));
+y = hbConcatenated./max(abs(hbConcatenated));
 % Export
 audiowrite('heartbeat.wav',y,fs);
