@@ -43,16 +43,16 @@ for nn=1:numBeats
 end
 
 %% Plot and Listen
-figure(1);
-clf;
-plot(timeVec, hbConcatenated, timeVec, hbConcatenatedUnfiltered);
-xlabel('Time (s)'); ylabel('Amplitude');
-legend('Filtered Pulse','Unfiltered Pulse'); title('Heartbeat Waveforms');
-xlim([0 beatDur*0.6])
-
-set(gcf,'Renderer','painters');
-
-print(gcf,'./media/heartbeat.png','-dpng','-r512')
+% figure(1);
+% clf;
+% plot(timeVec, hbConcatenated, timeVec, hbConcatenatedUnfiltered);
+% xlabel('Time (s)'); ylabel('Amplitude');
+% legend('Filtered Pulse','Unfiltered Pulse'); title('Heartbeat Waveforms');
+% xlim([0 beatDur*0.6])
+% 
+% set(gcf,'Renderer','painters');
+% 
+% print(gcf,'./media/heartbeat.png','-dpng','-r512')
 
 % soundsc(hbConcatenated, fs);
 
